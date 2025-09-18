@@ -1,12 +1,35 @@
 import { LogOutIcon, UserIcon } from 'lucide-react';
-
-import { useGlobal } from '../contexts/GlobalContext';
 import { useRenderCounter } from '../hooks/useRenderCounter';
+import { globalStore } from '../store/globalStore';
+import { useEffect, useState } from 'react';
 
 export function UserMenu() {
   useRenderCounter('UserMenu');
 
-  const { user, login, logout } = useGlobal();
+  const [user, setState] = useState(globalStore.getState().user);
+
+  useEffect(() => {
+    const unsubscribe = globalStore.subscribe(() => {
+      console.log(globalStore.getState().user);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  function login() {
+    globalStore.setState({
+      user: {
+        name: 'Debs',
+        email: 'malheirodev@gmail.com',
+      },
+    });
+  }
+
+  function logout() {
+    globalStore.setState({ user: null });
+  }
 
   if (!user) {
     return (
