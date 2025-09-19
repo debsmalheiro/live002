@@ -1,8 +1,11 @@
 type SetterFn<T> = (prevState: T) => Partial<T>;
+type SetStateFn<T> = (partialState: Partial<T> | SetterFn<T>) => void;
 
-export function createStore<TState>(initialState: TState) {
-  let state = initialState;
-  const listeners = new Set<() => void>();
+export function createStore<TState extends Record<string, any>>(
+  createState: (setter: SetStateFn<TState>) => TState,
+) {
+  let state: TState;
+  let listeners: Set<() => void>;
 
   function subscribe(listener: () => void) {
     listeners.add(listener);
@@ -29,15 +32,18 @@ export function createStore<TState>(initialState: TState) {
     return state;
   }
 
+  state = createState(setState);
+  listeners = new Set();
+
   return { getState, setState, subscribe };
 }
 
-const store = createStore({ userName: '', active: false, counter: 1 });
+// const store = createStore({ userName: '', active: false, counter: 1 });
 
-store.subscribe(() => {
-  console.log(store.getState());
-});
+// store.subscribe(() => {
+//   console.log(store.getState());
+// });
 
-store.setState({ userName: 'Debs' });
-store.setState((prevState) => ({ counter: prevState.counter + 1 }));
-store.setState((prevState) => ({ counter: prevState.counter + 1 }));
+// store.setState({ userName: 'Debs' });
+// store.setState((prevState) => ({ counter: prevState.counter + 1 }));
+// store.setState((prevState) => ({ counter: prevState.counter + 1 }));
